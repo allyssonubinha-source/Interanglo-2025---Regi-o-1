@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Interanglo 2025 - Sistema de Pontuação</title>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f6f9;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+    h1, h2, h3 {
+      color: #1a3c6e;
+    }
+    h1 {
+      text-align: center;
+      border-bottom: 3px solid #1a3c6e;
+      padding-bottom: 10px;
+      font-size: 1.8em;
+    }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      margin: 20px 0;
+      overflow-x: auto;
+    }
+    .tab-button {
+      padding: 12px 20px;
+      background: #ddd;
+      border: none;
+      cursor: pointer;
+      margin-right: 5px;
+      margin-bottom: 5px;
+      font-weight: bold;
+      border-radius: 5px;
+      white-space: nowrap;
+    }
+    .tab-button.active {
+      background: #1a3c6e;
+      color: white;
+    }
+    .tab-content {
+      display: none;
+      padding: 15px;
+      border: 1px solid #ccc;
+      background: white;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    .flex-container {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .group-box {
+      flex: 1;
+      min-width: 280px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      background: #f9f9f9;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 0.9em;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px 8px;
+      text-align: center;
+    }
+    th {
+      background: #1a3c6e;
+      color: white;
+    }
+    input, button {
+      padding: 8px;
+      margin: 5px 0;
+    }
+    button {
+      background: #1a3c6e;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background: #0f2a4d;
+    }
+    .match {
+      margin: 10px 0;
+      font-size: 0.9em;
+    }
+    .result-input {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .result-input input[type="number"] {
+      width: 60px;
+    }
+    .school-color {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    .general-rank {
+      font-weight: bold;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 50px;
+      color: #666;
+      font-size: 0.9em;
+    }
+    .alert {
+      padding: 12px;
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      color: #856404;
+      border-radius: 5px;
+      margin: 10px 0;
+      font-size: 0.95em;
+    }
+    .controls {
+      margin: 20px 0;
+      text-align: right;
+    }
+    .controls button {
+      padding: 10px 15px;
+      font-size: 0.9em;
+      margin-left: 10px;
+    }
+    .chart-container {
+      margin: 30px 0;
+      padding: 20px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    @media (max-width: 768px) {
+      .flex-container {
+        flex-direction: column;
+      }
+      .group-box {
+        min-width: 100%;
+      }
+      .result-input {
+        flex-direction: row;
+      }
+      .tabs {
+        font-size: 0.9em;
+      }
+      .tab-button {
+        padding: 10px 15px;
+        font-size: 0.9em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🏆 Interanglo 2025 – Região I</h1>
+  <p style="text-align: center;">Sistema de Pontuação Automatizado | Chaves Oficiais</p>
+
+  <div class="tabs">
+    <button class="tab-button active" data-tab="home">Início</button>
+    <button class="tab-button" data-tab="handebol-m">Handebol M</button>
+    <button class="tab-button" data-tab="handebol-f">Handebol F</button>
+    <button class="tab-button" data-tab="volei-areia-m">Vôlei de Areia M</button>
+    <button class="tab-button" data-tab="volei-areia-f">Vôlei de Areia F</button>
+    <button class="tab-button" data-tab="society-m">Society M</button>
+    <button class="tab-button" data-tab="society-f">Society F</button>
+    <button class="tab-button" data-tab="basquete-m">Basquete M</button>
+    <button class="tab-button" data-tab="basquete-f">Basquete F</button>
+    <button class="tab-button" data-tab="volei-quadra-m">Vôlei Quadra M</button>
+    <button class="tab-button" data-tab="volei-quadra-f">Vôlei Quadra F</button>
+    <button class="tab-button" data-tab="beach-tenis">Beach Tênis</button>
+    <button class="tab-button" data-tab="geral">Classificação Geral</button>
+  </div>
+
+  <!-- Aba Início -->
+  <div id="home" class="tab-content" style="display: block;">
+    <h2>Bem-vindo ao Sistema de Pontuação do Interanglo 2025</h2>
+    <p>As chaves foram carregadas com base no regulamento oficial. Insira os resultados e o sistema calculará classificação, semifinais, finais e pontuação geral automaticamente.</p>
+    <div class="alert">
+      <strong>Importante:</strong> Após inserir os resultados, vá para a aba "Classificação Geral" para ver a pontuação acumulada de todas as escolas.
+    </div>
+    <div class="controls">
+      <button onclick="zerarTudo()">Zerar Tudo</button>
+      <button onclick="salvarDados()">Salvar Resultados</button>
+      <button onclick="carregarArquivo()">Carregar Resultados</button>
+      <input type="file" id="loadFile" style="display: none;" accept=".json" />
+    </div>
+    <h3>Escolas Participantes</h3>
+    <ul>
+      <li><span class="school-color" style="background: #4169e1;"></span> <strong>Artur Nogueira</strong> - Royal</li>
+      <li><span class="school-color" style="background: #0077b6;"></span> <strong>Itatiba</strong> - Laguna</li>
+      <li><span class="school-color" style="background: #800080;"></span> <strong>Salto</strong> - Roxo</li>
+      <li><span class="school-color" style="background: #f4c2c2;"></span> <strong>Alante (Paulínia)</strong> - Rosa bebê</li>
+      <li><span class="school-color" style="background: #000080;"></span> <strong>Avicenna (Pirassununga)</strong> - Marinho</li>
+      <li><span class="school-color" style="background: #ff69b4;"></span> <strong>Fundamentum (Valinhos)</strong> - Pink</li>
+    </ul>
+  </div>
+
+  <!-- Estrutura de modalidade (será clonada) -->
+  <template id="modalidade-template">
+    <div class="controls">
+      <button onclick="zerarModalidade(event, '{{mod}}')">Zerar {{modNome}}</button>
+    </div>
+    <div class="flex-container">
+      <!-- Grupo A -->
+      <div class="group-box">
+        <h3>Grupo A</h3>
+        <table class="tabela-a">
+          <thead>
+            <tr>
+              <th>Escola</th>
+              <th>V</th>
+              <th>E</th>
+              <th>D</th>
+              <th>SG</th>
+              <th>GP</th>
+              <th>GC</th>
+              <th>Pts</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <h4>Jogos do Grupo A</h4>
+        <div class="matches-a"></div>
+      </div>
+
+      <!-- Grupo B -->
+      <div class="group-box">
+        <h3>Grupo B</h3>
+        <table class="tabela-b">
+          <thead>
+            <tr>
+              <th>Escola</th>
+              <th>V</th>
+              <th>E</th>
+              <th>D</th>
+              <th>SG</th>
+              <th>GP</th>
+              <th>GC</th>
+              <th>Pts</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <h4>Jogos do Grupo B</h4>
+        <div class="matches-b"></div>
+      </div>
+    </div>
+
+    <h3>Semifinais</h3>
+    <div class="semifinal">
+      <div class="match">
+        <strong>SF1:</strong> 1º Grupo A vs 2º Grupo B
+        <div class="result-input">
+          <span id="sf1-team1"></span> <input type="number" min="0" id="sf1-score1" /> x <input type="number" min="0" id="sf1-score2" /> <span id="sf1-team2"></span>
+          <button onclick="atualizarSemifinais('{{mod}}')">Salvar</button>
+        </div>
+      </div>
+      <div class="match">
+        <strong>SF2:</strong> 1º Grupo B vs 2º Grupo A
+        <div class="result-input">
+          <span id="sf2-team1"></span> <input type="number" min="0" id="sf2-score1" /> x <input type="number" min="0" id="sf2-score2" /> <span id="sf2-team2"></span>
+          <button onclick="atualizarSemifinais('{{mod}}')">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <h3>Final</h3>
+    <div class="final">
+      <div class="match">
+        <strong>Final:</strong> Vencedor SF1 vs Vencedor SF2
+        <div class="result-input">
+          <span id="final-team1"></span> <input type="number" min="0" id="final-score1" /> x <input type="number" min="0" id="final-score2" /> <span id="final-team2"></span>
+          <button onclick="atualizarClassificacaoFinal('{{mod}}')">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <h3>Classificação Final da Modalidade</h3>
+    <table id="final-rank">
+      <thead>
+        <tr>
+          <th>Colocação</th>
+          <th>Escola</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1º</td><td id="campeao"></td></tr>
+        <tr><td>2º</td><td id="vice"></td></tr>
+        <tr><td>3º</td><td id="terceiro"></td></tr>
+        <tr><td>4º</td><td id="quarto"></td></tr>
+        <tr><td>5º</td><td id="quinto"></td></tr>
+        <tr><td>6º</td><td id="sexto"></td></tr>
+      </tbody>
+    </table>
+    <p><strong>Pontuação Geral:</strong> 1º: 10, 2º: 7, 3º: 5, 4º: 3, 5º: 2, 6º: 1</p>
+  </template>
+
+  <!-- Abas de modalidades -->
+  <div id="handebol-m" class="tab-content"></div>
+  <div id="handebol-f" class="tab-content"></div>
+  <div id="volei-areia-m" class="tab-content"></div>
+  <div id="volei-areia-f" class="tab-content"></div>
+  <div id="society-m" class="tab-content"></div>
+  <div id="society-f" class="tab-content"></div>
+  <div id="basquete-m" class="tab-content"></div>
+  <div id="basquete-f" class="tab-content"></div>
+  <div id="volei-quadra-m" class="tab-content"></div>
+  <div id="volei-quadra-f" class="tab-content"></div>
+  <div id="beach-tenis" class="tab-content"></div>
+
+  <!-- Aba Classificação Geral -->
+  <div id="geral" class="tab-content">
+    <h2>🏆 Classificação Geral do Interanglo 2025</h2>
+    <div class="controls">
+      <button onclick="zerarGeral()">Zerar Classificação Geral</button>
+    </div>
+    <table id="tabela-geral">
+      <thead>
+        <tr>
+          <th>Posição</th>
+          <th>Escola</th>
+          <th>Total de Pontos</th>
+          <th>1ºs</th>
+          <th>2ºs</th>
+          <th>3ºs</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <p><em>Desempate: mais 1ºs → mais 2ºs → mais 3ºs</em></p>
+
+    <!-- Gráficos -->
+    <div class="chart-container">
+      <h3>📊 Gráficos de Desempenho</h3>
+      <canvas id="grafico-pontos" height="100"></canvas>
+    </div>
+    <div class="chart-container">
+      <canvas id="grafico-titulos" height="100"></canvas>
+    </div>
+    <div class="chart-container">
+      <canvas id="grafico-posicoes" height="100"></canvas>
+    </div>
+  </div>
+
+  <div class="footer">
+    Sistema de Pontuação Interanglo 2025 – Região I | Chaves oficiais carregadas | Desenvolvido para uso exclusivo da organização
+  </div>
+
+  <script>
+    // Dados das escolas
+    const escolasMap = {
+      "Artur": "Artur Nogueira",
+      "Itatiba": "Itatiba",
+      "Salto": "Salto",
+      "Alante": "Alante (Paulínia)",
+      "Avicenna": "Avicenna (Pirassununga)",
+      "Fundamentum": "Fundamentum (Valinhos)"
+    };
+
+    const cores = {
+      "Artur Nogueira": "#4169e1",
+      "Itatiba": "#0077b6",
+      "Salto": "#800080",
+      "Alante (Paulínia)": "#f4c2c2",
+      "Avicenna (Pirassununga)": "#000080",
+      "Fundamentum (Valinhos)": "#ff69b4"
+    };
+
+    const coresGrafico = [
+      "#4169e1", "#0077b6", "#800080", 
+      "#f4c2c2", "#000080", "#ff69b4"
+    ];
+
+    // Chaves oficiais
+    const chaves = {
+      "basquete-m": { A: ["Alante", "Artur", "Avicenna"], B: ["Itatiba", "Salto", "Fundamentum"] },
+      "basquete-f": { A: ["Itatiba", "Artur", "Avicenna"], B: ["Alante", "Fundamentum", "Salto"] },
+      "handebol-m": { A: ["Alante", "Salto", "Artur"], B: ["Itatiba", "Avicenna", "Fundamentum"] },
+      "handebol-f": { A: ["Itatiba", "Alante", "Fundamentum"], B: ["Artur", "Salto", "Avicenna"] },
+      "volei-quadra-m": { A: ["Artur", "Salto", "Avicenna"], B: ["Fundamentum", "Itatiba", "Alante"] },
+      "volei-quadra-f": { A: ["Artur", "Alante", "Salto"], B: ["Fundamentum", "Avicenna", "Itatiba"] },
+      "society-m": { A: ["Itatiba", "Avicenna", "Fundamentum"], B: ["Artur", "Salto", "Alante"] },
+      "society-f": { A: ["Itatiba", "Salto", "Avicenna"], B: ["Artur", "Fundamentum", "Alante"] },
+      "volei-areia-m": { A: ["Avicenna", "Alante", "Itatiba"], B: ["Artur", "Fundamentum", "Salto"] },
+      "volei-areia-f": { A: ["Avicenna", "Alante", "Fundamentum"], B: ["Artur", "Salto", "Itatiba"] },
+      "beach-tenis": { A: ["Fundamentum", "Artur", "Alante"], B: ["Salto", "Itatiba", "Avicenna"] }
+    };
+
+    const nomesMod = {
+      "handebol-m": "Handebol Masculino",
+      "handebol-f": "Handebol Feminino",
+      "volei-areia-m": "Vôlei de Areia Masculino",
+      "volei-areia-f": "Vôlei de Areia Feminino",
+      "society-m": "Society Masculino",
+      "society-f": "Society Feminino",
+      "basquete-m": "Basquete Masculino",
+      "basquete-f": "Basquete Feminino",
+      "volei-quadra-m": "Vôlei Quadra Masculino",
+      "volei-quadra-f": "Vôlei Quadra Feminino",
+      "beach-tenis": "Beach Tênis"
+    };
+
+    const modalidades = Object.keys(chaves);
+
+    // Estrutura de dados
+    let resultados = {};
+    let classificacaoGeral = {};
+
+    // Inicializar
+    function inicializarDados() {
+      resultados = {};
+      classificacaoGeral = {};
+      modalidades.forEach(mod => {
+        resultados[mod] = { grupoA: [], grupoB: [], semifinal: {}, final: {}, classificacao: [] };
+        chaves[mod].A.forEach(abrev => {
+          const nome = escolasMap[abrev];
+          if (!classificacaoGeral[nome]) {
+            classificacaoGeral[nome] = { pontos: 0, primeiros: 0, segundos: 0, terceiros: 0 };
+          }
+        });
+        chaves[mod].B.forEach(abrev => {
+          const nome = escolasMap[abrev];
+          if (!classificacaoGeral[nome]) {
+            classificacaoGeral[nome] = { pontos: 0, primeiros: 0, segundos: 0, terceiros: 0 };
+          }
+        });
+      });
+      criarAbas();
+      atualizarTabelaGeral();
+    }
+
+    inicializarDados();
+
+    // Criar abas
+    function criarAbas() {
+      modalidades.forEach(mod => {
+        const div = document.getElementById(mod);
+        div.innerHTML = '';
+        let html = document.getElementById("modalidade-template").innerHTML;
+        html = html.replace(/{{mod}}/g, mod);
+        html = html.replace(/{{modNome}}/g, nomesMod[mod]);
+        div.innerHTML = html;
+
+        // Preencher grupos
+        const boxA = div.querySelector('.matches-a');
+        const boxB = div.querySelector('.matches-b');
+
+        criarJogosMod(mod, chaves[mod].A, boxA);
+        criarJogosMod(mod, chaves[mod].B, boxB);
+
+        atualizarTabela(mod);
+        atualizarSemifinais(mod);
+      });
+    }
+
+    function criarJogosMod(mod, grupo, container) {
+      for (let i = 0; i < grupo.length; i++) {
+        for (let j = i + 1; j < grupo.length; j++) {
+          const t1 = grupo[i];
+          const t2 = grupo[j];
+          const match = document.createElement('div');
+          match.className = 'match';
+          match.innerHTML = `
+            <span>${escolasMap[t1]}</span>
+            <input type="number" min="0" class="gol1" style="width:60px" /> x
+            <input type="number" min="0" class="gol2" style="width:60px" />
+            <span>${escolasMap[t2]}</span>
+            <button onclick="salvarResultado('${mod}', '${grupo===chaves[mod].A?'A':'B'}', '${t1}', '${t2}', this)">Salvar</button>
+          `;
+          container.appendChild(match);
+        }
+      }
+    }
+
+    window.salvarResultado = function(mod, grupo, t1Key, t2Key, btn) {
+      const container = btn.closest('.matches-a') || btn.closest('.matches-b');
+      const inputs = container.querySelectorAll('.match');
+      const match = Array.from(inputs).find(m => 
+        m.innerHTML.includes(escolasMap[t1Key]) && m.innerHTML.includes(escolasMap[t2Key])
+      );
+      const gol1 = match.querySelector('.gol1').value;
+      const gol2 = match.querySelector('.gol2').value;
+      const g1 = parseInt(gol1) || 0;
+      const g2 = parseInt(gol2) || 0;
+
+      const jogo = { time1: escolasMap[t1Key], time2: escolasMap[t2Key], g1, g2 };
+      if (!resultados[mod][`grupo${grupo}`]) resultados[mod][`grupo${grupo}`] = [];
+      resultados[mod][`grupo${grupo}`].push(jogo);
+
+      atualizarTabela(mod);
+      atualizarSemifinais(mod);
+    };
+
+    window.atualizarTabela = function(mod) {
+      ['A', 'B'].forEach(grupo => {
+        const tabela = document.querySelector(`#${mod} .tabela-${grupo.toLowerCase()} tbody`);
+        tabela.innerHTML = '';
+        const classif = calcularClassificacaoGrupo(mod, grupo);
+        classif.forEach(time => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${time.time}</td>
+            <td>${time.v}</td>
+            <td>${time.e}</td>
+            <td>${time.d}</td>
+            <td>${time.sg}</td>
+            <td>${time.gp}</td>
+            <td>${time.gc}</td>
+            <td>${time.pts}</td>
+          `;
+          tabela.appendChild(tr);
+        });
+      });
+    };
+
+    function calcularClassificacaoGrupo(mod, grupo) {
+      const times = {};
+      (chaves[mod][grupo] || []).forEach(abrev => {
+        const nome = escolasMap[abrev];
+        times[nome] = { time: nome, v: 0, e: 0, d: 0, gp: 0, gc: 0, sg: 0, pts: 0 };
+      });
+
+      (resultados[mod][`grupo${grupo}`] || []).forEach(j => {
+        const { time1, time2, g1, g2 } = j;
+        if (!times[time1] || !times[time2]) return;
+        times[time1].gp += g1; times[time1].gc += g2;
+        times[time2].gp += g2; times[time2].gc += g1;
+        if (g1 > g2) { times[time1].v++; times[time1].pts += 3; times[time2].d++; }
+        else if (g2 > g1) { times[time2].v++; times[time2].pts += 3; times[time1].d++; }
+        else { times[time1].e++; times[time1].pts++; times[time2].e++; times[time2].pts++; }
+      });
+
+      Object.values(times).forEach(t => { t.sg = t.gp - t.gc; });
+
+      return Object.values(times)
+        .filter(t => t.v + t.e + t.d > 0)
+        .sort((a, b) => {
+          if (a.pts !== b.pts) return b.pts - a.pts;
+          const ab = resultados[mod][`grupo${grupo}`].find(j => 
+            (j.time1 === a.time && j.time2 === b.time) || (j.time1 === b.time && j.time2 === a.time)
+          );
+          if (ab) {
+            if (ab.time1 === a.time && ab.g1 > ab.g2) return -1;
+            if (ab.time1 === b.time && ab.g1 > ab.g2) return 1;
+            if (ab.g1 === ab.g2) return 0;
+          }
+          if (a.sg !== b.sg) return b.sg - a.sg;
+          if (a.gp !== b.gp) return b.gp - a.gp;
+          if (a.gc !== b.gc) return a.gc - b.gc;
+          return 0;
+        });
+    }
+
+    window.atualizarSemifinais = function(mod) {
+      const classifA = calcularClassificacaoGrupo(mod, 'A');
+      const classifB = calcularClassificacaoGrupo(mod, 'B');
+      const sf1t1 = document.getElementById('sf1-team1');
+      const sf1t2 = document.getElementById('sf1-team2');
+      const sf2t1 = document.getElementById('sf2-team1');
+      const sf2t2 = document.getElementById('sf2-team2');
+
+      if (sf1t1) sf1t1.textContent = classifA[0]?.time || '1º Grupo A';
+      if (sf1t2) sf1t2.textContent = classifB[1]?.time || '2º Grupo B';
+      if (sf2t1) sf2t1.textContent = classifB[0]?.time || '1º Grupo B';
+      if (sf2t2) sf2t2.textContent = classifA[1]?.time || '2º Grupo A';
+
+      window.atualizarClassificacaoFinal(mod);
+    };
+
+    window.atualizarClassificacaoFinal = function(mod) {
+      const sf1s1 = parseInt(document.getElementById('sf1-score1')?.value || 0);
+      const sf1s2 = parseInt(document.getElementById('sf1-score2')?.value || 0);
+      const sf2s1 = parseInt(document.getElementById('sf2-score1')?.value || 0);
+      const sf2s2 = parseInt(document.getElementById('sf2-score2')?.value || 0);
+      const final1 = parseInt(document.getElementById('final-score1')?.value || 0);
+      const final2 = parseInt(document.getElementById('final-score2')?.value || 0);
+
+      const classifA = calcularClassificacaoGrupo(mod, 'A');
+      const classifB = calcularClassificacaoGrupo(mod, 'B');
+      const vencedorSF1 = sf1s1 > sf1s2 ? classifA[0]?.time : classifB[1]?.time;
+      const vencedorSF2 = sf2s1 > sf2s2 ? classifB[0]?.time : classifA[1]?.time;
+
+      document.getElementById('final-team1').textContent = vencedorSF1 || 'Vencedor SF1';
+      document.getElementById('final-team2').textContent = vencedorSF2 || 'Vencedor SF2';
+
+      let campeao, vice;
+      if (final1 > final2) { campeao = vencedorSF1; vice = vencedorSF2; }
+      else if (final2 > final1) { campeao = vencedorSF2; vice = vencedorSF1; }
+
+      const terceiro = campeao === classifA[0]?.time ? classifB[1]?.time : classifA[1]?.time;
+      const quarto = vice === classifB[0]?.time ? classifA[1]?.time : classifB[1]?.time;
+      const grupoCampeao = classifA.some(t => t.time === campeao) ? classifA : classifB;
+      const grupoVice = grupoCampeao === classifA ? classifB : classifA;
+      const quinto = grupoCampeao.find(t => ![campeao, vice, terceiro, quarto].includes(t.time))?.time;
+      const sexto = grupoVice.find(t => ![campeao, vice, terceiro, quarto].includes(t.time))?.time;
+
+      document.getElementById('campeao').textContent = campeao || '';
+      document.getElementById('vice').textContent = vice || '';
+      document.getElementById('terceiro').textContent = terceiro || '';
+      document.getElementById('quarto').textContent = quarto || '';
+      document.getElementById('quinto').textContent = quinto || '';
+      document.getElementById('sexto').textContent = sexto || '';
+
+      resultados[mod].classificacao = [campeao, vice, terceiro, quarto, quinto, sexto];
+      atualizarPontuacaoGeral(mod, [campeao, vice, terceiro, quarto, quinto, sexto]);
+    };
+
+    function atualizarPontuacaoGeral(mod, classificacao) {
+      const pontos = [10, 7, 5, 3, 2, 1];
+      classificacao.forEach((escola, idx) => {
+        if (!escola) return;
+        classificacaoGeral[escola].pontos += pontos[idx];
+        if (idx === 0) classificacaoGeral[escola].primeiros++;
+        if (idx === 1) classificacaoGeral[escola].segundos++;
+        if (idx === 2) classificacaoGeral[escola].terceiros++;
+      });
+      atualizarTabelaGeral();
+    }
+
+    function atualizarTabelaGeral() {
+      const tbody = document.querySelector('#tabela-geral tbody');
+      tbody.innerHTML = '';
+      const ordenado = Object.keys(classificacaoGeral).sort((a, b) => {
+        const gA = classificacaoGeral[a];
+        const gB = classificacaoGeral[b];
+        if (gA.pontos !== gB.pontos) return gB.pontos - gA.pontos;
+        if (gA.primeiros !== gB.primeiros) return gB.primeiros - gA.primeiros;
+        if (gA.segundos !== gB.segundos) return gB.segundos - gA.segundos;
+        if (gA.terceiros !== gB.terceiros) return gB.terceiros - gA.terceiros;
+        return 0;
+      });
+
+      ordenado.forEach((escola, idx) => {
+        const dados = classificacaoGeral[escola];
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${idx+1}º</td>
+          <td style="text-align: left;">
+            <span class="school-color" style="background:${cores[escola]}"></span>
+            ${escola}
+          </td>
+          <td>${dados.pontos}</td>
+          <td>${dados.primeiros}</td>
+          <td>${dados.segundos}</td>
+          <td>${dados.terceiros}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Atualizar gráficos
+      atualizarGraficos();
+    }
+
+    function atualizarGraficos() {
+      const escolas = Object.keys(classificacaoGeral);
+      const pontos = escolas.map(e => classificacaoGeral[e].pontos);
+      const titulos = escolas.map(e => classificacaoGeral[e].primeiros);
+      const seg = escolas.map(e => classificacaoGeral[e].segundos);
+      const terc = escolas.map(e => classificacaoGeral[e].terceiros);
+
+      // Gráfico de Pontos
+      const ctx1 = document.getElementById('grafico-pontos').getContext('2d');
+      if (window.graficoPontos) window.graficoPontos.destroy();
+      window.graficoPontos = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: escolas,
+          datasets: [{
+            label: 'Pontos Totais',
+            data: pontos,
+            backgroundColor: coresGrafico,
+            borderColor: '#ccc',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+
+      // Gráfico de Títulos
+      const ctx2 = document.getElementById('grafico-titulos').getContext('2d');
+      if (window.graficoTitulos) window.graficoTitulos.destroy();
+      window.graficoTitulos = new Chart(ctx2, {
+        type: 'pie',
+        data: {
+          labels: escolas,
+          datasets: [{
+            label: 'Títulos',
+            data: titulos,
+            backgroundColor: coresGrafico
+          }]
+        }
+      });
+
+      // Gráfico de Posições
+      const ctx3 = document.getElementById('grafico-posicoes').getContext('2d');
+      if (window.graficoPosicoes) window.graficoPosicoes.destroy();
+      window.graficoPosicoes = new Chart(ctx3, {
+        type: 'bar',
+        data: {
+          labels: escolas,
+          datasets: [
+            { label: '1º Lugar', data: titulos, backgroundColor: '#ffd700' },
+            { label: '2º Lugar', data: seg, backgroundColor: '#c0c0c0' },
+            { label: '3º Lugar', data: terc, backgroundColor: '#cd7f32' }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    }
+
+    // Botões de controle
+    window.zerarTudo = function() {
+      if (confirm("Tem certeza que deseja zerar TODOS os dados?")) {
+        inicializarDados();
+      }
+    };
+
+    window.zerarModalidade = function(e, mod) {
+      e.preventDefault();
+      if (confirm(`Zerar todos os resultados de ${nomesMod[mod]}?`)) {
+        resultados[mod] = { grupoA: [], grupoB: [], semifinal: {}, final: {}, classificacao: [] };
+        atualizarTabela(mod);
+        document.querySelectorAll(`#${mod} input[type="number"]`).forEach(inp => inp.value = '');
+        document.getElementById('campeao').textContent = '';
+        document.getElementById('vice').textContent = '';
+        atualizarTabelaGeral();
+      }
+    };
+
+    window.zerarGeral = function() {
+      if (confirm("Zerar toda a classificação geral?")) {
+        Object.values(classificacaoGeral).forEach(d => {
+          d.pontos = 0; d.primeiros = 0; d.segundos = 0; d.terceiros = 0;
+        });
+        atualizarTabelaGeral();
+      }
+    };
+
+    window.salvarDados = function() {
+      const data = { resultados, classificacaoGeral };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'interanglo-salvo.json';
+      a.click();
+    };
+
+    window.carregarArquivo = function() {
+      document.getElementById('loadFile').click();
+    };
+
+    document.getElementById('loadFile').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          try {
+            const data = JSON.parse(ev.target.result);
+            resultados = data.resultados;
+            classificacaoGeral = data.classificacaoGeral;
+            alert("Dados carregados com sucesso!");
+            criarAbas();
+            atualizarTabelaGeral();
+          } catch (err) {
+            alert("Erro ao carregar arquivo.");
+          }
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    // Abas
+    document.querySelectorAll('.tab-button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).style.display = 'block';
+      });
+    });
+  </script>
+</body>
+</html>
